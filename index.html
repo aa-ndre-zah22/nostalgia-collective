@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nostalgia Collective - Mix Sounds. Draw Memories. Connect.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #FAF5F0 0%, #F5EFE7 100%);
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(250, 245, 240, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FF9D5C;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #FF9D5C;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff8a3d;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 157, 92, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4F46E5;
+            border: 2px solid #4F46E5;
+        }
+
+        .btn-secondary:hover {
+            background: #4F46E5;
+            color: white;
+        }
+
+        /* Three.js Canvas */
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Hero Content Overlay */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            color: #1E293B;
+            animation: fadeInUp 1.2s ease-out;
+            pointer-events: auto;
+        }
+
+        .hero-tagline {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FF9D5C;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-title {
+            font-size: 64px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            color: #1E293B;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .hero-subtitle {
+            font-size: 22px;
+            color: #475569;
+            margin-bottom: 48px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-bottom: 64px;
+        }
+
+        .btn-lg {
+            padding: 16px 48px;
+            font-size: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-lg-primary {
+            background: #FF9D5C;
+            color: white;
+        }
+
+        .btn-lg-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(255, 157, 92, 0.5);
+        }
+
+        .btn-lg-secondary {
+            background: white;
+            color: #4F46E5;
+            border: 2px solid #4F46E5;
+        }
+
+        .btn-lg-secondary:hover {
+            transform: translateY(-4px);
+            background: #4F46E5;
+            color: white;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            position: absolute;
+            bottom: 120px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 0 40px;
+            animation: slideUp 1s ease-out 0.3s both;
+            pointer-events: none;
+        }
+
+        .feature {
+            text-align: center;
+            max-width: 200px;
+            pointer-events: auto;
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 12px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: #64748B;
+            line-height: 1.5;
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            pointer-events: none;
+        }
+
+        .scroll-indicator svg {
+            width: 24px;
+            height: 24px;
+            stroke: #FF9D5C;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Content Sections */
+        .section {
+            min-height: 100vh;
+            padding: 100px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            scroll-snap-align: start;
+        }
+
+        .section-dark {
+            background: #0F172A;
+            color: #F8FAFC;
+        }
+
+        .section-light {
+            background: #FAF5F0;
+            color: #1E293B;
+        }
+
+        .section-content {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .section-text h2 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+
+        .section-text p {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 32px 0;
+        }
+
+        .feature-list li {
+            font-size: 16px;
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            color: #FF9D5C;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .section-visual {
+            height: 500px;
+            background: linear-gradient(135deg, #FF9D5C 0%, #4F46E5 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+            color: white;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .section-dark .section-visual {
+            background: linear-gradient(135deg, #4F46E5 0%, #FF9D5C 100%);
+        }
+
+        /* Sound Buttons Grid */
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin: 40px 0;
+        }
+
+        .sound-btn {
+            padding: 24px;
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .sound-btn:hover {
+            transform: translateY(-8px);
+            border-color: #FF9D5C;
+            box-shadow: 0 12px 40px rgba(255, 157, 92, 0.3);
+        }
+
+        .sound-btn span {
+            display: block;
+            font-size: 14px;
+            margin-top: 8px;
+            color: #475569;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #FF9D5C 0%, #4F46E5 100%);
+            color: white;
+            text-align: center;
+            padding: 120px 40px;
+            min-height: auto;
+        }
+
+        .cta-section h2 {
+            font-size: 48px;
+            margin-bottom: 24px;
+        }
+
+        .cta-section p {
+            font-size: 20px;
+            margin-bottom: 48px;
+            opacity: 0.95;
+        }
+
+        .cta-section .btn-lg {
+            background: white;
+            color: #FF9D5C;
+            border: none;
+        }
+
+        .cta-section .btn-lg:hover {
+            background: #1E293B;
+            color: #FF9D5C;
+        }
+
+        /* Footer */
+        footer {
+            background: #1E293B;
+            color: #CBD5E1;
+            padding: 40px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 40px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .how-it-works {
+                flex-direction: column;
+                gap: 40px;
+                bottom: 80px;
+            }
+
+            .section-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .sound-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">🎵 NOSTALGIA</div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary">Sign In</button>
+            <button class="btn btn-primary">Get Started</button>
+        </div>
+    </header>
+
+    <!-- Hero Section with Three.js -->
+    <section id="canvas-container">
+        <canvas id="three-canvas"></canvas>
+        
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <div class="hero-tagline">✨ Welcome to Nostalgia</div>
+                <h1 class="hero-title">Mix Sounds. Draw Memories.<br>Connect Across Time.</h1>
+                <p class="hero-subtitle">
+                    Relive your childhood through immersive sound and collaborative art.<br>
+                    Share memories with people who lived the same era.
+                </p>
+                
+                <div class="hero-buttons">
+                    <button class="btn-lg btn-lg-primary">Start Creating</button>
+                    <button class="btn-lg btn-lg-secondary">Explore Gallery</button>
+                </div>
+
+                <div class="how-it-works">
+                    <div class="feature">
+                        <div class="feature-icon">🎚️</div>
+                        <div class="feature-title">Mix Sounds</div>
+                        <div class="feature-desc">Blend childhood sounds into your perfect mix</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🎨</div>
+                        <div class="feature-title">Draw Stories</div>
+                        <div class="feature-desc">Visualize memories with collaborative art</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🎥</div>
+                        <div class="feature-title">Connect Live</div>
+                        <div class="feature-desc">Video call with friends and draw together</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Section 1: Sound Mixer -->
+    <section class="section section-light">
+        <div class="section-content">
+            <div class="section-text">
+                <h2>🎚️ Create Your Soundtrack</h2>
+                <p>
+                    Choose from a curated library of authentic childhood sounds. Mix and match to recreate the exact sensory experience of your favorite memories.
+                </p>
+                <ul class="feature-list">
+                    <li>School bell ringing</li>
+                    <li>Bus conductor calling stops</li>
+                    <li>Rain on tin roof (monsoon)</li>
+                    <li>Scooter starting up</li>
+                    <li>Vintage telephone ring</li>
+                    <li>Pencil on notebook scratch</li>
+                    <li>Cricket bat hitting ball</li>
+                    <li>And many more...</li>
+                </ul>
+            </div>
+            <div class="section-visual sound-grid">
+                <div class="sound-btn">
+                    <div>🔔</div>
+                    <span>School Bell</span>
+                </div>
+                <div class="sound-btn">
+                    <div>🚌</div>
+                    <span>Bus</span>
+                </div>
+                <div class="sound-btn">
+                    <div>🌧️</div>
+                    <span>Monsoon</span>
+                </div>
+                <div class="sound-btn">
+                    <div>🛵</div>
+                    <span>Scooter</span>
+                </div>
+                <div class="sound-btn">
+                    <div>📻</div>
+                    <span>Radio</span>
+                </div>
+                <div class="sound-btn">
+                    <div>📞</div>
+                    <span>Phone</span>
+                </div>
+                <div class="sound-btn">
+                    <div>📝</div>
+                    <span>Pencil</span>
+                </div>
+                <div class="sound-btn">
+                    <div>🏏</div>
+                    <span>Cricket</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Drawing Canvas -->
+    <section class="section section-dark">
+        <div class="section-content">
+            <div class="section-visual">🎨</div>
+            <div class="section-text">
+                <h2>🎨 Visualize Your Memory</h2>
+                <p>
+                    Once your soundscape is ready, sketch what you see, feel, and remember. Our intuitive drawing canvas makes it easy to express yourself without needing any artistic skills.
+                </p>
+                <ul class="feature-list">
+                    <li>Free-form drawing tools</li>
+                    <li>Warm color palette (16+ colors)</li>
+                    <li>Multiple brush styles</li>
+                    <li>Undo/Redo functionality</li>
+                    <li>Sound plays while drawing</li>
+                    <li>Auto-save every 30 seconds</li>
+                    <li>Export as image</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Collaborative Drawing -->
+    <section class="section section-light">
+        <div class="section-content">
+            <div class="section-text">
+                <h2>🎥 Draw Together, Live</h2>
+                <p>
+                    Host a live drawing room where up to 4 people can draw on the same canvas while video chatting. Perfect for creating memories with friends who share your childhood era.
+                </p>
+                <ul class="feature-list">
+                    <li>Live video calls (WebRTC)</li>
+                    <li>Synchronized shared canvas</li>
+                    <li>See cursor positions in real-time</li>
+                    <li>Live chat integration</li>
+                    <li>Synchronized sound playback</li>
+                    <li>Record and export sessions</li>
+                    <li>Invite via shareable links</li>
+                </ul>
+            </div>
+            <div class="section-visual">🎥</div>
+        </div>
+    </section>
+
+    <!-- Section 4: Discovery -->
+    <section class="section section-dark">
+        <div class="section-content">
+            <div class="section-visual">👥</div>
+            <div class="section-text">
+                <h2>👥 Discover & Connect</h2>
+                <p>
+                    Browse thousands of memories from people around the world. Filter by decade, region, sounds, or themes. Like, comment, and suggest remixes.
+                </p>
+                <ul class="feature-list">
+                    <li>Filter by decade (70s-2010s)</li>
+                    <li>Regional cultural memories</li>
+                    <li>Search by sounds or themes</li>
+                    <li>Like and comment on memories</li>
+                    <li>Create memory bundles</li>
+                    <li>Find people with similar memories</li>
+                    <li>Join collaborative sessions</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Ready to Revisit Your Memories?</h2>
+        <p>Join thousands of people reliving their childhood, one sound at a time.</p>
+        <button class="btn-lg btn-lg-primary">Start Your Journey Today</button>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Nostalgia Collective. All rights reserved. | Made with ❤️ for memories</p>
+    </footer>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Initialize Three.js scene
+        const canvas = document.getElementById('three-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xfaf5f0, 1);
+        camera.position.z = 5;
+
+        // Create particles (vinyl records)
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 150;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i += 3) {
+            posArray[i] = (Math.random() - 0.5) * 20;
+            posArray[i + 1] = (Math.random() - 0.5) * 20;
+            posArray[i + 2] = (Math.random() - 0.5) * 20;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.15,
+            color: new THREE.Color(0xFF9D5C),
+            opacity: 0.6,
+            sizeAttenuation: true
+        });
+
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
+
+        // Create rotating vinyl record shape
+        const vinylGeometry = new THREE.TorusGeometry(2.5, 0.3, 64, 100);
+        const vinylMaterial = new THREE.MeshPhongMaterial({
+            color: 0x4F46E5,
+            emissive: 0xFF9D5C,
+            shininess: 100,
+            emissiveIntensity: 0.3
+        });
+        const vinyl = new THREE.Mesh(vinylGeometry, vinylMaterial);
+        vinyl.rotation.x = 0.3;
+        scene.add(vinyl);
+
+        // Create additional decorative torus
+        const ringGeometry = new THREE.TorusGeometry(3.5, 0.05, 64, 100);
+        const ringMaterial = new THREE.MeshPhongMaterial({
+            color: 0xFF9D5C,
+            emissive: 0xFF9D5C,
+            emissiveIntensity: 0.5
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.rotation.y = 0.5;
+        scene.add(ring);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xFF9D5C, 1);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        const pointLight2 = new THREE.PointLight(0x4F46E5, 0.8);
+        pointLight2.position.set(-5, -5, 5);
+        scene.add(pointLight2);
+
+        // Animation loop
+        let mouse = { x: 0, y: 0 };
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate vinyl
+            vinyl.rotation.z += 0.002;
+            ring.rotation.z -= 0.001;
+
+            // Animate particles
+            particles.rotation.x += 0.0001;
+            particles.rotation.y += 0.0002;
+
+            // Mouse interaction
+            camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05;
+            camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            // Floating animation
+            vinyl.position.y += Math.sin(Date.now() * 0.0005) * 0.005;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Button interactions
+        document.querySelectorAll('.btn, .btn-lg').forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.textContent.includes('Start Creating') || this.textContent.includes('Start Your Journey')) {
+                    alert('🎵 Welcome! This would take you to the Sound Mixer.\n\nFull features coming soon!');
+                } else if (this.textContent.includes('Explore Gallery')) {
+                    alert('🎨 Explore our gallery of shared memories!\n\nFull features coming soon!');
+                } else if (this.textContent.includes('Sign In')) {
+                    alert('👤 Sign In interface would appear here!\n\nFull features coming soon!');
+                } else if (this.textContent.includes('Get Started')) {
+                    alert('🚀 Let\'s get started!\n\nFull features coming soon!');
+                }
+            });
+        });
+
+        // Sound button interactions
+        document.querySelectorAll('.sound-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'translateY(-8px)';
+                }, 100);
+                // Play sound effect (placeholder)
+                console.log('Sound played:', this.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
